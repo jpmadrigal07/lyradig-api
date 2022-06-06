@@ -1,0 +1,27 @@
+{
+  "name": "lyradig-api",
+  "version": "0.0.1",
+  "main": "index.js",
+  "author": "John Patrick Madrigal",
+  "license": "MIT",
+  "scripts": {
+    "start": "nodemon server.js",
+    "pretty": "prettier --write \"./**/*.{js,jsx,json}\"",
+    "prepare": "husky install",
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "lodash": "^4.17.20",
+    "moment": "^2.29.1",
+    "mongoose": "^5.9.27",
+    "nodemon": "^2.0.4"
+  },
+  "devDependencies": {
+    "eslint": "7.11.0",
+    "husky": "^7.0.0",
+    "prettier": "^2.2.1",
+    "pretty-quick": "^3.1.3"
+  }
+}
