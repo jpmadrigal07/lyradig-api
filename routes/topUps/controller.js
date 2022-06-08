@@ -1,8 +1,8 @@
-const Users = require("../../models/users");
+const TopUps = require("../../models/topUps");
 const isEmpty = require("lodash/isEmpty");
 const { UNKNOWN_ERROR_OCCURRED } = require("../../constants");
 
-const getAllUsers = async (req, res, next) => {
+const getAllTopUps = async (req, res, next) => {
   const condition = req.query.condition ? JSON.parse(req.query.condition) : {};
   if (!condition.deletedAt) {
     condition.deletedAt = {
@@ -10,34 +10,35 @@ const getAllUsers = async (req, res, next) => {
     };
   }
   try {
-    const getAllUser = await Users.find(condition);
-    res.json(getAllUser);
+    const getAllTopUps = await TopUps.find(condition);
+    res.json(getAllTopUps);
   } catch ({ message: errMessage }) {
     const message = errMessage ? errMessage : UNKNOWN_ERROR_OCCURRED;
     res.status(500).json(message);
   }
 };
 
-const addUser = async (req, res, next) => {
-  const { username, password, userType } = req.body;
-  if (username && password && userType) {
-    const newUser = new User({
-      username,
-      password,
-      userType,
+const addTopUp = async (req, res, next) => {
+  const { userId, staffId, pricePoints, referenceNumber } = req.body;
+  if (userId && staffId && pricePoints) {
+    const newTopUps = new TopUps({
+      userId,
+      staffId,
+      pricePoints,
+      referenceNumber,
     });
     try {
-      const getUser = await User.find({
-        username,
+      const getTopUps = await TopUps.find({
+        referenceNumber,
         deletedAt: {
           $exists: false,
         },
       });
-      if (getUser.length === 0) {
-        const createUser = await newUser.save();
-        res.json(createUser);
+      if (getTopUps.length === 0) {
+        const createTopUps = await newTopUps.save();
+        res.json(createTopUps);
       } else {
-        throw new Error("Username must be unique");
+        throw new Error("Top Up must be unique");
       }
     } catch ({ message: errMessage }) {
       const message = errMessage ? errMessage : UNKNOWN_ERROR_OCCURRED;
@@ -48,11 +49,11 @@ const addUser = async (req, res, next) => {
   }
 };
 
-const updateUser = async (req, res, next) => {
+const updateTopUp = async (req, res, next) => {
   const condition = req.body;
   if (!isEmpty(condition)) {
     try {
-      const updateUser = await Users.findByIdAndUpdate(
+      const updateTopUps = await TopUps.findByIdAndUpdate(
         req.params.id,
         {
           $set: condition,
@@ -60,33 +61,33 @@ const updateUser = async (req, res, next) => {
         },
         { new: true }
       );
-      res.json(updateUser);
+      res.json(updateTopUps);
     } catch ({ message: errMessage }) {
       const message = errMessage ? errMessage : UNKNOWN_ERROR_OCCURRED;
       res.status(500).json(message);
     }
   } else {
-    res.status(500).json("User cannot be found");
+    res.status(500).json("TopUps cannot be found");
   }
 };
 
-const deleteUser = async (req, res, next) => {
+const deleteTopUp = async (req, res, next) => {
   try {
-    const getUser = await Users.find({
+    const getTopUps = await TopUps.find({
       _id: req.params.id,
       deletedAt: {
         $exists: false,
       },
     });
-    if (getUser.length > 0) {
-      const deleteUser = await Users.findByIdAndUpdate(req.params.id, {
+    if (getTopUps.length > 0) {
+      const deleteTopUps = await TopUps.findByIdAndUpdate(req.params.id, {
         $set: {
           deletedAt: Date.now(),
         },
       });
-      res.json(deleteUser);
+      res.json(deleteTopUps);
     } else {
-      throw new Error("User is already deleted");
+      throw new Error("TopUps is already deleted");
     }
   } catch ({ message: errMessage }) {
     const message = errMessage ? errMessage : UNKNOWN_ERROR_OCCURRED;
@@ -95,8 +96,8 @@ const deleteUser = async (req, res, next) => {
 };
 
 module.exports = {
-  getAllUsers,
-  addUser,
-  updateUser,
-  deleteUser,
+  getAllTopUps,
+  addTopUp,
+  updateTopUp,
+  deleteTopUp,
 };

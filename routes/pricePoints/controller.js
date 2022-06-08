@@ -1,8 +1,8 @@
-const Users = require("../../models/users");
+const PricePoints = require("../../models/pricePoints");
 const isEmpty = require("lodash/isEmpty");
 const { UNKNOWN_ERROR_OCCURRED } = require("../../constants");
 
-const getAllUsers = async (req, res, next) => {
+const getAllPricePoints = async (req, res, next) => {
   const condition = req.query.condition ? JSON.parse(req.query.condition) : {};
   if (!condition.deletedAt) {
     condition.deletedAt = {
@@ -10,34 +10,34 @@ const getAllUsers = async (req, res, next) => {
     };
   }
   try {
-    const getAllUser = await Users.find(condition);
-    res.json(getAllUser);
+    const getAllPricePoint = await PricePoints.find(condition);
+    res.json(getAllPricePoint);
   } catch ({ message: errMessage }) {
     const message = errMessage ? errMessage : UNKNOWN_ERROR_OCCURRED;
     res.status(500).json(message);
   }
 };
 
-const addUser = async (req, res, next) => {
-  const { username, password, userType } = req.body;
-  if (username && password && userType) {
-    const newUser = new User({
-      username,
-      password,
-      userType,
+const addPricePoint = async (req, res, next) => {
+  const { price, points } = req.body;
+  if (price && points) {
+    const newPricePoint = new PricePoints({
+      price,
+      points,
     });
     try {
-      const getUser = await User.find({
-        username,
+      const getPricePoint = await PricePoints.find({
+        price,
+        points,
         deletedAt: {
           $exists: false,
         },
       });
-      if (getUser.length === 0) {
-        const createUser = await newUser.save();
-        res.json(createUser);
+      if (getPricePoint.length === 0) {
+        const createPricePoint = await newPricePoint.save();
+        res.json(createPricePoint);
       } else {
-        throw new Error("Username must be unique");
+        throw new Error("Price Point name must be unique");
       }
     } catch ({ message: errMessage }) {
       const message = errMessage ? errMessage : UNKNOWN_ERROR_OCCURRED;
@@ -48,11 +48,11 @@ const addUser = async (req, res, next) => {
   }
 };
 
-const updateUser = async (req, res, next) => {
+const updatePricePoint = async (req, res, next) => {
   const condition = req.body;
   if (!isEmpty(condition)) {
     try {
-      const updateUser = await Users.findByIdAndUpdate(
+      const updatePricePoint = await PricePoints.findByIdAndUpdate(
         req.params.id,
         {
           $set: condition,
@@ -60,33 +60,36 @@ const updateUser = async (req, res, next) => {
         },
         { new: true }
       );
-      res.json(updateUser);
+      res.json(updatePricePoint);
     } catch ({ message: errMessage }) {
       const message = errMessage ? errMessage : UNKNOWN_ERROR_OCCURRED;
       res.status(500).json(message);
     }
   } else {
-    res.status(500).json("User cannot be found");
+    res.status(500).json("Price Point cannot be found");
   }
 };
 
-const deleteUser = async (req, res, next) => {
+const deletePricePoint = async (req, res, next) => {
   try {
-    const getUser = await Users.find({
+    const getPricePoint = await PricePoints.find({
       _id: req.params.id,
       deletedAt: {
         $exists: false,
       },
     });
-    if (getUser.length > 0) {
-      const deleteUser = await Users.findByIdAndUpdate(req.params.id, {
-        $set: {
-          deletedAt: Date.now(),
-        },
-      });
-      res.json(deleteUser);
+    if (getPricePoint.length > 0) {
+      const deletePricePoint = await PricePoints.findByIdAndUpdate(
+        req.params.id,
+        {
+          $set: {
+            deletedAt: Date.now(),
+          },
+        }
+      );
+      res.json(deletePricePoint);
     } else {
-      throw new Error("User is already deleted");
+      throw new Error("Price Point is already deleted");
     }
   } catch ({ message: errMessage }) {
     const message = errMessage ? errMessage : UNKNOWN_ERROR_OCCURRED;
@@ -95,8 +98,8 @@ const deleteUser = async (req, res, next) => {
 };
 
 module.exports = {
-  getAllUsers,
-  addUser,
-  updateUser,
-  deleteUser,
+  getAllPricePoints,
+  addPricePoint,
+  updatePricePoint,
+  deletePricePoint,
 };

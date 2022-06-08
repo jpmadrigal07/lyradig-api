@@ -1,8 +1,9 @@
+const Withdraws = require("../../models/withdraws");
 const Users = require("../../models/users");
 const isEmpty = require("lodash/isEmpty");
 const { UNKNOWN_ERROR_OCCURRED } = require("../../constants");
 
-const getAllUsers = async (req, res, next) => {
+const getAllWithdraws = async (req, res, next) => {
   const condition = req.query.condition ? JSON.parse(req.query.condition) : {};
   if (!condition.deletedAt) {
     condition.deletedAt = {
@@ -10,34 +11,43 @@ const getAllUsers = async (req, res, next) => {
     };
   }
   try {
-    const getAllUser = await Users.find(condition);
-    res.json(getAllUser);
+    const getAllWithdraw = await Withdraws.find(condition);
+    res.json(getAllWithdraw);
   } catch ({ message: errMessage }) {
     const message = errMessage ? errMessage : UNKNOWN_ERROR_OCCURRED;
     res.status(500).json(message);
   }
 };
 
-const addUser = async (req, res, next) => {
-  const { username, password, userType } = req.body;
-  if (username && password && userType) {
-    const newUser = new User({
-      username,
-      password,
-      userType,
+const addWithdraw = async (req, res, next) => {
+  const { userId, amount } = req.body;
+  if (userId && amount && declineReason) {
+    const newWithdraw = new Withdraws({
+      userId,
+      amount,
     });
     try {
-      const getUser = await User.find({
-        username,
+      const getWithdraw = await Withdraws.find({
+        userId,
+        amount, // add date here
         deletedAt: {
           $exists: false,
         },
       });
-      if (getUser.length === 0) {
-        const createUser = await newUser.save();
-        res.json(createUser);
+      const checkPointsSufficient = await Users.find({
+        _id: userId,
+        walletPoints: { $gte: amount },
+        deletedAt: {
+          $exists: false,
+        },
+      });
+      if (getWithdraw.length > 0) {
+        throw new Error("Withdraw name must be unique");
+      } else if (checkPointsSufficient.length === 0) {
+        throw new Error("Insufficient wallet points");
       } else {
-        throw new Error("Username must be unique");
+        const createWithdraw = await newWithdraw.save();
+        res.json(createWithdraw);
       }
     } catch ({ message: errMessage }) {
       const message = errMessage ? errMessage : UNKNOWN_ERROR_OCCURRED;
@@ -48,11 +58,11 @@ const addUser = async (req, res, next) => {
   }
 };
 
-const updateUser = async (req, res, next) => {
+const updateWithdraw = async (req, res, next) => {
   const condition = req.body;
   if (!isEmpty(condition)) {
     try {
-      const updateUser = await Users.findByIdAndUpdate(
+      const updateWithdraw = await Withdraws.findByIdAndUpdate(
         req.params.id,
         {
           $set: condition,
@@ -60,33 +70,33 @@ const updateUser = async (req, res, next) => {
         },
         { new: true }
       );
-      res.json(updateUser);
+      res.json(updateWithdraw);
     } catch ({ message: errMessage }) {
       const message = errMessage ? errMessage : UNKNOWN_ERROR_OCCURRED;
       res.status(500).json(message);
     }
   } else {
-    res.status(500).json("User cannot be found");
+    res.status(500).json("Withdraw cannot be found");
   }
 };
 
-const deleteUser = async (req, res, next) => {
+const deleteWithdraw = async (req, res, next) => {
   try {
-    const getUser = await Users.find({
+    const getWithdraw = await Withdraws.find({
       _id: req.params.id,
       deletedAt: {
         $exists: false,
       },
     });
-    if (getUser.length > 0) {
-      const deleteUser = await Users.findByIdAndUpdate(req.params.id, {
+    if (getWithdraw.length > 0) {
+      const deleteWithdraw = await Withdraws.findByIdAndUpdate(req.params.id, {
         $set: {
           deletedAt: Date.now(),
         },
       });
-      res.json(deleteUser);
+      res.json(deleteWithdraw);
     } else {
-      throw new Error("User is already deleted");
+      throw new Error("Withdraw is already deleted");
     }
   } catch ({ message: errMessage }) {
     const message = errMessage ? errMessage : UNKNOWN_ERROR_OCCURRED;
@@ -95,8 +105,8 @@ const deleteUser = async (req, res, next) => {
 };
 
 module.exports = {
-  getAllUsers,
-  addUser,
-  updateUser,
-  deleteUser,
+  getAllWithdraws,
+  addWithdraw,
+  updateWithdraw,
+  deleteWithdraw,
 };

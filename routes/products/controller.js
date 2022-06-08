@@ -1,8 +1,8 @@
-const Users = require("../../models/users");
+const Products = require("../../models/products");
 const isEmpty = require("lodash/isEmpty");
 const { UNKNOWN_ERROR_OCCURRED } = require("../../constants");
 
-const getAllUsers = async (req, res, next) => {
+const getAllProducts = async (req, res, next) => {
   const condition = req.query.condition ? JSON.parse(req.query.condition) : {};
   if (!condition.deletedAt) {
     condition.deletedAt = {
@@ -10,34 +10,36 @@ const getAllUsers = async (req, res, next) => {
     };
   }
   try {
-    const getAllUser = await Users.find(condition);
-    res.json(getAllUser);
+    const getAllProduct = await Products.find(condition);
+    res.json(getAllProduct);
   } catch ({ message: errMessage }) {
     const message = errMessage ? errMessage : UNKNOWN_ERROR_OCCURRED;
     res.status(500).json(message);
   }
 };
 
-const addUser = async (req, res, next) => {
-  const { username, password, userType } = req.body;
-  if (username && password && userType) {
-    const newUser = new User({
-      username,
-      password,
-      userType,
+const addProduct = async (req, res, next) => {
+  const { name, level, price, additionalPrice } = req.body;
+  if (name && level && price && additionalPrice) {
+    const newProduct = new Products({
+      name,
+      level,
+      price,
+      additionalPrice,
     });
     try {
-      const getUser = await User.find({
-        username,
+      const getProduct = await Products.find({
+        name,
+        price,
         deletedAt: {
           $exists: false,
         },
       });
-      if (getUser.length === 0) {
-        const createUser = await newUser.save();
-        res.json(createUser);
+      if (getProduct.length === 0) {
+        const createProduct = await newProduct.save();
+        res.json(createProduct);
       } else {
-        throw new Error("Username must be unique");
+        throw new Error("Product name must be unique");
       }
     } catch ({ message: errMessage }) {
       const message = errMessage ? errMessage : UNKNOWN_ERROR_OCCURRED;
@@ -48,11 +50,11 @@ const addUser = async (req, res, next) => {
   }
 };
 
-const updateUser = async (req, res, next) => {
+const updateProduct = async (req, res, next) => {
   const condition = req.body;
   if (!isEmpty(condition)) {
     try {
-      const updateUser = await Users.findByIdAndUpdate(
+      const updateProduct = await Products.findByIdAndUpdate(
         req.params.id,
         {
           $set: condition,
@@ -60,33 +62,33 @@ const updateUser = async (req, res, next) => {
         },
         { new: true }
       );
-      res.json(updateUser);
+      res.json(updateProduct);
     } catch ({ message: errMessage }) {
       const message = errMessage ? errMessage : UNKNOWN_ERROR_OCCURRED;
       res.status(500).json(message);
     }
   } else {
-    res.status(500).json("User cannot be found");
+    res.status(500).json("Product cannot be found");
   }
 };
 
-const deleteUser = async (req, res, next) => {
+const deleteProduct = async (req, res, next) => {
   try {
-    const getUser = await Users.find({
+    const getProduct = await Products.find({
       _id: req.params.id,
       deletedAt: {
         $exists: false,
       },
     });
-    if (getUser.length > 0) {
-      const deleteUser = await Users.findByIdAndUpdate(req.params.id, {
+    if (getProduct.length > 0) {
+      const deleteProduct = await Products.findByIdAndUpdate(req.params.id, {
         $set: {
           deletedAt: Date.now(),
         },
       });
-      res.json(deleteUser);
+      res.json(deleteProduct);
     } else {
-      throw new Error("User is already deleted");
+      throw new Error("Product is already deleted");
     }
   } catch ({ message: errMessage }) {
     const message = errMessage ? errMessage : UNKNOWN_ERROR_OCCURRED;
@@ -95,8 +97,8 @@ const deleteUser = async (req, res, next) => {
 };
 
 module.exports = {
-  getAllUsers,
-  addUser,
-  updateUser,
-  deleteUser,
+  getAllProducts,
+  addProduct,
+  updateProduct,
+  deleteProduct,
 };
