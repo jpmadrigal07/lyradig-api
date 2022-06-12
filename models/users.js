@@ -12,10 +12,10 @@ const users = new Schema({
     enum: ["Admin", "Staff", "User"],
   },
   referralCode: {
-        type:String,
-        required: true,
-        unique: true
-    },
+    type: String,
+    required: true,
+    unique: true,
+  },
   lastLoggedIn: Date,
   lastLoggedOut: Date,
   blockedAt: Date,

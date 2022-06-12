@@ -4,11 +4,11 @@ const { Schema } = mongoose;
 const referrals = new Schema({
   referralCode: String,
   referrerId: {
-    type: mongoose.Schema.Types.String,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "userId",
   },
   referredId: {
-    type: mongoose.Schema.Types.String,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "userId",
   },
   createdAt: {

@@ -3,15 +3,18 @@ const { Schema } = mongoose;
 
 const referralTopUps = new Schema({
   referrerId: {
-    type: mongoose.Schema.Types.String,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "Users",
   },
   referredId: {
-    type: mongoose.Schema.Types.String,
+    type: mongoose.Schema.Types.ObjectId,
     ref: "Users",
   },
   points: Number,
-  isCollected: Boolean,
+  isCollected: {
+    type: Boolean,
+    default: false,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
