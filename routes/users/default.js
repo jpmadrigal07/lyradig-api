@@ -27,7 +27,7 @@ const addUser = async (req, res, next) => {
       userType,
     });
     try {
-      const getUser = await User.find({
+      const getUser = await Users.find({
         username,
         deletedAt: {
           $exists: false,

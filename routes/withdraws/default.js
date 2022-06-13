@@ -62,6 +62,18 @@ const updateWithdraw = async (req, res, next) => {
   const condition = req.body;
   if (!isEmpty(condition)) {
     try {
+      const withdraw = await Withdraws.findOne({
+        _id: req.params.id,
+        deletedAt: {
+          $exists: false,
+        },
+      }).populate("userId");
+      const isWalletPointsInsufficient =
+        condition?.status === "Approved" &&
+        withdraw.amount > withdraw.userId.walletPoints;
+      if (isWalletPointsInsufficient) {
+        throw new Error("Insufficient wallet points");
+      }
       const updateWithdraw = await Withdraws.findByIdAndUpdate(
         req.params.id,
         {
@@ -70,7 +82,19 @@ const updateWithdraw = async (req, res, next) => {
         },
         { new: true }
       );
-      res.json(updateWithdraw);
+      if (updateWithdraw?.status === "Approved") {
+        const updateUser = await Users.findByIdAndUpdate(
+          withdraw.userId,
+          {
+            $inc: { walletPoints: -withdraw.amount },
+            updatedAt: Date.now(),
+          },
+          { new: true }
+        );
+        res.json({ updateWithdraw, updateUser });
+      } else {
+        res.json(updateWithdraw);
+      }
     } catch ({ message: errMessage }) {
       const message = errMessage ? errMessage : UNKNOWN_ERROR_OCCURRED;
       res.status(500).json(message);

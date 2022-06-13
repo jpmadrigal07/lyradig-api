@@ -15,6 +15,12 @@ const topUps = new Schema({
     ref: "PricePoints",
   },
   referenceNumber: String,
+  status: {
+    type: String,
+    enum: ["Approved", "Declined", "Pending"],
+    default: "Pending",
+  },
+  declineReason: String,
   createdAt: {
     type: Date,
     default: Date.now,

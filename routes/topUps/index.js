@@ -5,7 +5,7 @@ const {
   addTopUp,
   updateTopUp,
   deleteTopUp,
-} = require("./controller");
+} = require("./default");
 
 router.get("/", getAllTopUps);
 router.post("/", addTopUp);

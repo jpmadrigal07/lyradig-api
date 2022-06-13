@@ -10,7 +10,7 @@ const withdraws = new Schema({
   amount: Number,
   status: {
     type: String,
-    enum: ["Approve", "Declined", "Pending"],
+    enum: ["Approved", "Declined", "Pending"],
     default: "Pending",
   },
   declineReason: String,

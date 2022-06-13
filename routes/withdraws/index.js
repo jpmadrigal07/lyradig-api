@@ -5,7 +5,7 @@ const {
   addWithdraw,
   updateWithdraw,
   deleteWithdraw,
-} = require("./controller");
+} = require("./default");
 
 router.get("/", getAllWithdraws);
 router.post("/", addWithdraw);

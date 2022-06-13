@@ -5,8 +5,9 @@ const {
   addReferralTopUp,
   updateReferralTopUp,
   deleteReferralTopUp,
-} = require("./controller");
+} = require("./default");
 
+// default
 router.get("/", getAllReferralTopUps);
 router.post("/", addReferralTopUp);
 router.put("/", updateReferralTopUp);

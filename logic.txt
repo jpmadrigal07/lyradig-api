@@ -1,0 +1,51 @@
+Process to get user Total active investment
+
+1. Find all the topUp of a user that are less than or equal to 90 days old. (https://stackoverflow.com/questions/19910161/javascript-calculating-date-from-today-date-to-7-days-before)
+2. Add up all the topUp.pricePoints.price 
+
+Process to get user Total active daily points from it's investments
+
+1. Find all the topUp of a user that are less than or equal to 90 days old. (https://stackoverflow.com/questions/19910161/javascript-calculating-date-from-today-date-to-7-days-before)
+2. Add up all the topUp.pricePoints.points 
+
+--
+
+For adding points to user walletPoints, the date must be dependent on http://worldtimeapi.org/api/timezone/Asia/Manila.
+
+--
+
+Process to initiate the pointsReceived for users
+
+1. User needs to login first
+2. Find all to topUps that are still active using validUntil, if validUntil is less than or equal to 90 days (api request)
+3. In the backend, while process 2, find all last pointsReceived of all active topUps (api request)
+4. We will send it to the api to process all of the days for each missing topUps pointsReceived (example data to be send it like this [{ topUpId: "sampleid1", lastDatePointsReceive: "date", validUntil: "date", points: 350 }, { topUpId: "sampleid2", lastDatePointsReceive: "date", validUntil: "date", points: 350 } ])
+
+(2. Find days that the user doesn't have record on pointsReceived) Wrong logic
+(3. Send backend request to get all points per day, example: request[june 1, june 2, june 3] response[0, 300, 250]) Wrong logic
+(4. Sum up the response then add it to the user walletPoints) Wrong logic
+
+Process when the user topUp
+
+1. User needs to login first
+2. Send money to the company gcash number and get the reference number
+3. Fill up the form for topUp and send a post request to backend
+4. In the backend, check if the user isReferred is true, make another post req to referralTopUps
+
+Process to get users referralTopUp to add to its walletPoints
+
+1. User needs to login first
+2. Send a backend request with the loggedIn userId to find all data from referralTopUp that isCollected is false and referrerId is the same as the logged in userId, then collect all of the points and sum it up and add it to user walletPoints
+
+--
+
+Once ma approve yung withdraw, ibabawas lang siya sa user walletPoints
+
+--
+
+Take note
+
+All of business logic will be on backend
+Frontend will only show the data
+
+Use Storybook for components

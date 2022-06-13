@@ -1,4 +1,7 @@
 const TopUps = require("../../models/topUps");
+const Referral = require("../../models/referrals");
+const ReferralTopUps = require("../../models/referralTopUps");
+const PricePoints = require("../../models/pricePoints");
 const isEmpty = require("lodash/isEmpty");
 const { UNKNOWN_ERROR_OCCURRED } = require("../../constants");
 
@@ -60,8 +63,26 @@ const updateTopUp = async (req, res, next) => {
           updatedAt: Date.now(),
         },
         { new: true }
-      );
-      res.json(updateTopUps);
+      ).populate("pricePoints");
+      if (updateTopUps?.status === "Approved") {
+        const isUserReferred = await Referral.findOne({
+          referredId: updateTopUps.referredId,
+          deletedAt: {
+            $exists: false,
+          },
+        });
+        if (isUserReferred) {
+          const newReferralTopUps = new ReferralTopUps({
+            points: updateTopUps?.pricePoints?.points,
+            referrerId: isUserReferred?.referrerId,
+            referredId: isUserReferred?.referredId,
+          });
+          const createReferralTopUps = await newReferralTopUps.save();
+          res.json({ updateTopUps, createReferralTopUps });
+        }
+      } else {
+        res.json(updateTopUps);
+      }
     } catch ({ message: errMessage }) {
       const message = errMessage ? errMessage : UNKNOWN_ERROR_OCCURRED;
       res.status(500).json(message);
