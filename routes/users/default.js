@@ -1,6 +1,19 @@
 const Users = require("../../models/users");
 const isEmpty = require("lodash/isEmpty");
 const { UNKNOWN_ERROR_OCCURRED } = require("../../constants");
+const keys = require("../../config/keys");
+const CryptoJS = require("crypto-js");
+
+const referralCode = () => {
+  var result = "";
+  var characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  var charactersLength = characters.length;
+  for (var i = 0; i < 10; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+};
 
 const getAllUsers = async (req, res, next) => {
   const condition = req.query.condition ? JSON.parse(req.query.condition) : {};
@@ -21,10 +34,15 @@ const getAllUsers = async (req, res, next) => {
 const addUser = async (req, res, next) => {
   const { username, password, userType } = req.body;
   if (username && password && userType) {
-    const newUser = new User({
-      username,
+    const encryptPassword = CryptoJS.AES.encrypt(
       password,
+      keys.encryptKey
+    ).toString();
+    const newUser = new Users({
+      username,
+      password: encryptPassword,
       userType,
+      referralCode: referralCode(),
     });
     try {
       const getUser = await Users.find({

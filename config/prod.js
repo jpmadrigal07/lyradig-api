@@ -2,7 +2,7 @@
 
 module.exports = {
   mongoURI: process.env.MONGO_URI,
-  cookieKey: process.env.COOKIE_KEY,
-  sessionKey: process.env.SESSION_KEY,
+  encryptKey: process.env.ENCRYPT_KEY,
+  signKey: process.env.SIGN_KEY,
   redirectDomain: process.env.REDIRECT_DOMAIN,
 };
